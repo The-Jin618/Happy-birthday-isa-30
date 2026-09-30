@@ -1,0 +1,280 @@
+/* =====================================================================
+   ÍNDICE
+   1. Variables (colores)      5. Escena principal (título, pastel)
+   2. Base                     6. Cartas
+   3. Lienzos                  7. Botones
+   4. Intro (letras)           8. Accesibilidad
+   ===================================================================== */
+
+/* ---------- 1. VARIABLES: cambia aquí los colores principales ---------- */
+:root {
+  --noche: #2b2442;      /* fondo oscuro de la intro */
+  --texto: #5b3a56;      /* color del texto en las cartas */
+  --titulo: #c2477f;     /* color de "¡Felicidades, Nombre!" */
+  --boton: #f7a8c4;      /* botón "Abrir otra carta" */
+  --fuente: 'Dancing Script', 'Segoe Script', 'Brush Script MT', cursive;
+}
+
+/* ---------- 2. BASE ---------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: var(--noche);
+  color: var(--texto);
+  font-family: var(--fuente);
+  overflow-x: hidden;
+  transition: background 1.6s;                 /* transición noche → día */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Fondo pastel cuando termina la intro (el JS agrega la clase "day") */
+body.day {
+  background: linear-gradient(160deg, #ffeaf2 0%, #efe8ff 55%, #e3f6ef 100%) fixed;
+}
+
+/* ---------- 3. LIENZOS (canvas) ---------- */
+canvas { position: fixed; inset: 0; pointer-events: none; }
+#fw { z-index: 3; transition: opacity 1.2s; }   /* fuegos artificiales */
+#cf { z-index: 5; }                             /* confeti y pétalos */
+
+/* ---------- 4. INTRO: LETRAS "FELIZ CUMPLEAÑOS" ---------- */
+#intro {
+  position: fixed; inset: 0; z-index: 4;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; pointer-events: none;
+  transition: opacity 1s;
+}
+.ln { display: block; line-height: 1.15; font-weight: 700; }
+.ln:nth-child(1) { font-size: clamp(2.6rem, 11vw, 5.5rem); }   /* "Feliz" */
+.ln:nth-child(2) { font-size: clamp(2.2rem, 9.5vw, 4.6rem); }  /* "Cumpleaños" */
+.ln:nth-child(3) { font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 500; } /* "para ti" */
+
+.sp { display: inline-block; width: .35em; }    /* espacio entre palabras */
+
+/* Cada letra empieza invisible y pequeña... */
+.l {
+  display: inline-block; position: relative;
+  opacity: 0;
+  transform: scale(.3);
+  transition: opacity .4s, transform .5s cubic-bezier(.3, 1.6, .5, 1);
+}
+/* ...aparece cuando explota su cohete (clase "on")... */
+.l.on { opacity: 1; transform: none; }
+
+/* ...y luego se va con un globo (clase "go").
+   El globo es ::after y su hilo es ::before; el color viene de --c */
+.l::before {
+  content: ""; position: absolute; left: 50%; bottom: 100%;
+  width: 1px; height: 0; background: #ffffff88; transition: height .6s;
+}
+.l::after {
+  content: ""; position: absolute; left: 50%; bottom: 100%;
+  width: 0; height: 0; border-radius: 50%; background: var(--c);
+  transform: translateX(-50%); transition: all .6s;
+}
+.l.go {
+  transition: transform 4s cubic-bezier(.4, 0, .8, .6) var(--d), opacity 4s ease-in var(--d);
+  transform: translateY(-120vh) rotate(var(--r));
+  opacity: 0;
+}
+.l.go::before { height: 26px; bottom: calc(100% + 14px); }
+.l.go::after  { width: 20px; height: 25px; bottom: calc(100% + 38px); }
+
+#skip {
+  position: fixed; z-index: 6; right: 14px;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  background: #ffffff22; color: #fff; border: 1px solid #ffffff44;
+  border-radius: 99px; padding: 6px 16px;
+  font: inherit; font-size: 1.05rem; cursor: pointer;
+}
+
+/* ---------- 5. ESCENA PRINCIPAL ---------- */
+#stage {
+  position: relative; z-index: 4; min-height: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 16px 64px;
+  opacity: 0; visibility: hidden; transition: opacity 1.4s;
+}
+#stage.show { opacity: 1; visibility: visible; }
+
+h1 {
+  margin: 8px 0 0; text-align: center;
+  font-size: clamp(2.2rem, 8vw, 3.8rem); line-height: 1.15;
+  color: var(--titulo); font-weight: 700; overflow-wrap: anywhere;
+}
+
+.cake { width: min(230px, 60vw); margin: 6px 0 4px; overflow: visible; }
+
+/* Llamas de las velas: pequeño parpadeo */
+.fl { transform-box: fill-box; transform-origin: 50% 100%; animation: parpadeo .5s ease-in-out infinite alternate; }
+.fl:nth-of-type(2n) { animation-duration: .42s; }
+@keyframes parpadeo {
+  from { transform: scale(1, 1) rotate(-3deg); }
+  to   { transform: scale(.88, 1.12) rotate(3deg); }
+}
+
+.hint { margin: 6px 0 14px; font-size: 1.35rem; text-align: center; max-width: 26ch; }
+
+/* ---------- 6. CARTAS ---------- */
+#stack { position: relative; width: min(340px, 88vw); height: 400px; margin-top: 4px; }
+
+.card {
+  position: absolute; left: 0; top: 0; width: 100%; height: 370px;
+  border-radius: 14px; padding: 16px 16px 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 10px 24px #b08fb655;
+  transform-origin: 50% 100%;
+  animation: entrada .7s cubic-bezier(.2, 1.2, .4, 1) both;   /* cómo aparece cada carta */
+  cursor: pointer;
+}
+@keyframes entrada {
+  from { opacity: 0; transform: translateY(120px) rotate(0) scale(.85); }
+}
+.card b { font-size: 1.4rem; }
+
+/* Mensaje de la carta (solo lectura; respeta los saltos de línea) */
+.texto {
+  flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap;
+  border-radius: 10px; background: #ffffffa6; padding: 10px 12px;
+  font-size: 1.35rem; line-height: 1.35; color: var(--texto);
+}
+
+/* Foto de la carta */
+.foto { height: 100px; flex: auto; border-radius: 10px; overflow: hidden; background: #ffffff70; }
+.foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ---------- 7. BOTONES ---------- */
+#more {
+  margin-top: 8px; padding: 10px 26px; border: 0; border-radius: 99px;
+  background: var(--boton); color: #4a2545;
+  font: inherit; font-weight: 700; font-size: 1.4rem; cursor: pointer;
+  box-shadow: 0 6px 16px #f7a8c47a;
+}
+#more:disabled { background: #e2d6ea; box-shadow: none; cursor: default; }
+
+#again {
+  margin-top: 26px; background: none; border: 0;
+  font: inherit; font-size: 1.15rem; color: #8a6a88;
+  cursor: pointer; text-decoration: underline;
+}
+
+/* ---------- 8. ACCESIBILIDAD ---------- */
+#skip:focus-visible, button:focus-visible, .texto:focus-visible {
+  outline: 3px solid #8b6fd6; outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fl, .card { animation: none; }
+}
+
+
+
+
+
+
+/* Contenedor que agrupa el disco y el menú */
+.contenedor-reproductor {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column; /* Apila el menú sobre el disco */
+    align-items: flex-end; /* Alinea todo a la derecha */
+    gap: 15px;
+}
+
+/* Menú de canciones (Oculto por defecto) */
+.menu-canciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px); /* Efecto de que sube un poco al aparecer */
+    transition: all 0.3s ease;
+}
+
+/* Mostrar el menú al pasar el ratón (PC) o al activar la clase (Móvil) */
+.contenedor-reproductor:hover .menu-canciones,
+.contenedor-reproductor.activo .menu-canciones {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Estilo de los botones de cada canción */
+.item-cancion {
+    background-color: rgba(43, 37, 34, 0.9); /* Color oscuro translúcido */
+    color: #fff;
+    border: 1px solid #d4af37; /* Borde amarillo/dorado */
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: right;
+    
+    /* REGLAS PARA RECORTAR EL TEXTO LARGO */
+    max-width: 160px; /* Ancho máximo antes de recortarse */
+    white-space: nowrap; /* Evita que el texto baje a otra línea */
+    overflow: hidden; /* Oculta lo que se sale del borde */
+    text-overflow: ellipsis; /* Añade los "..." al final */
+    
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+/* Efecto al pasar el ratón por una canción */
+.item-cancion:hover {
+    background-color: #d4af37; 
+    color: #111;
+    transform: translateX(-5px); /* Se mueve un poquito a la izquierda */
+}
+
+/* Estilo para saber qué canción está sonando actualmente */
+.item-cancion.sonando {
+    background-color: #d4af37;
+    color: #111;
+    font-weight: 700;
+}
+
+/* --- ESTILOS DEL DISCO (Ajustados) --- */
+.disco-flotante {
+    width: 70px;
+    height: 70px;
+    background-color: #111;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    border: 2px solid #2a2421;
+    position: relative;
+}
+
+.disco-flotante::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #2b2522;
+    border-radius: 50%;
+}
+
+.disco-flotante img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.girando img {
+    animation: rotar 4s linear infinite;
+}
+
+@keyframes rotar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

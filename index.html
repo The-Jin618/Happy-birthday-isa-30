@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Feliz cumpleaños ISAAAA</title>
+
+    <!-- Tipografía cursiva (Google Fonts). Sin internet se usa una cursiva del sistema -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="static/css/styles1.css">
+
+</head>|
+
+<body>
+    <!-- ============ 1. INTRO: FUEGOS ARTIFICIALES ============ -->
+    <canvas id="fw"></canvas> <!-- lienzo donde se dibujan los fuegos -->
+    <div id="intro" aria-live="polite"></div> <!-- aquí el JS escribe "Feliz cumpleaños" -->
+    <button id="skip">Saltar</button> <!-- botón para saltar la intro -->
+
+    <div class="contenedor-reproductor" id="contenedor-reproductor">
+
+        <!-- Menú de canciones que aparece al pasar el ratón o tocar -->
+        <div class="menu-canciones">
+            <!-- El atributo data-src guarda la ruta real del audio -->
+            <button class="item-cancion sonando"
+                data-src="static/mp3/pasylo.mp3">1.??</button>
+            <button class="item-cancion" data-src="static/mp3/Feels Like Yesterday.mp3">2. ??</button>
+        </div>
+
+        <!-- El disco de vinilo -->
+        <div class="disco-flotante" id="reproductor-disco">
+            <img id="imagen-disco" src="static/img/miau5.jpeg" alt="Portada de audio">
+        </div>
+
+        <!-- Reproductor de audio base -->
+        <audio id="audio-disco">
+            <source src="static/mp3/pasylo.mp3"
+                type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- ESCENA PRINCIPAL DE LA TARJETA -->
+    <main id="stage">
+
+        <!-- 2.1 Título con el nombre (se cambia en script.js → NOMBRE) -->
+        <h1 id="ttl"></h1>
+
+        <!-- 2.2 Pastel (SVG). Cada bloque está etiquetado para poder cambiar colores -->
+        <svg class="cake" viewBox="0 0 240 230" role="img" aria-label="Pastel de cumpleaños con velas">
+            <!-- plato -->
+            <ellipse cx="120" cy="212" rx="112" ry="13" fill="#e8d9f2" />
+            <!-- piso de abajo + glaseado -->
+            <rect x="30" y="150" width="180" height="58" rx="14" fill="#ffd9e6" />
+            <path
+                d="M30 164q0-14 14-14h152q14 0 14 14 0 10-10 10-8 0-10 12-3-12-13-12-11 0-13 14-3-14-14-14-10 0-14 12-3-12-14-12-10 0-14 12-3-12-14-12-11 0-14 12-3-12-12-12-10 0-10-10z"
+                fill="#fff" />
+            <!-- piso de arriba + glaseado -->
+            <rect x="58" y="98" width="124" height="56" rx="12" fill="#d9ccff" />
+            <path
+                d="M58 110q0-12 12-12h100q12 0 12 12 0 8-9 8-7 0-9 10-3-10-11-10-9 0-11 12-3-12-12-12-9 0-12 10-3-10-11-10-8 0-9 8z"
+                fill="#fff" />
+            <!-- adornos (puntitos de colores) -->
+            <circle cx="80" cy="180" r="5" fill="#f7a8c4" />
+            <circle cx="120" cy="184" r="5" fill="#c9efe2" />
+            <circle cx="160" cy="180" r="5" fill="#fff3b8" />
+            <circle cx="100" cy="130" r="4" fill="#ffc8dd" />
+            <circle cx="142" cy="132" r="4" fill="#c9efe2" />
+            <!-- velas -->
+            <rect x="84" y="62" width="9" height="38" rx="3" fill="#ffc8dd" />
+            <rect x="115" y="56" width="9" height="44" rx="3" fill="#c9efe2" />
+            <rect x="146" y="62" width="9" height="38" rx="3" fill="#fff3b8" />
+            <!-- llamas (animadas en styles.css → .fl) -->
+            <path class="fl" d="M88.500 43q7 10 0 18-7-8 0-18z" fill="#ffb55e" />
+            <path class="fl" d="M119.500 37q7 10 0 18-7-8 0-18z" fill="#ffb55e" />
+            <path class="fl" d="M150.500 43q7 10 0 18-7-8 0-18z" fill="#ffb55e" />
+        </svg>
+
+        <!-- 2.4 Cartas: el JS crea aquí cada carta (máx. en script.js → MAX_CARTAS) -->
+        <div id="stack"></div>
+        <button id="more"></button>
+
+        <!-- 2.5 Repetir la intro -->
+        <button id="again">Ver los fuegos artificiales otra vez</button>
+
+    </main>
+
+    <!-- ============ 3. CONFETI Y PÉTALOS (lienzo por encima de todo) ============ -->
+    <canvas id="cf"></canvas>
+
+    <!-- Lógica -->
+    <script src="static/js/script.js"></script>
+</body>
+
+</html>
